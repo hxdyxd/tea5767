@@ -76,7 +76,7 @@ int main( int argc, char *argv[])
     printf("\n");
 
     write(fd, radio_freq_set(radio, frequency), 5);
-    usleep(100000);
+    usleep(50000);
 
     int rlen = read(fd, radio, 5);
     if(rlen == 5) {
