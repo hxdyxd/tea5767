@@ -2,11 +2,18 @@
 /* referance: https://www.raspberrypi.org/forums/viewtopic.php?t=53680 */
 /* By hxdyxd */
 
-#include <wiringPi.h>
-#include <wiringPiI2C.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <linux/i2c-dev.h>
+
+
+#define I2C_DEV       "/dev/i2c-1"
+#define I2C_TEA5767_ID   0x60
 
 
 unsigned char *radio_freq_set(unsigned char radio[5], double frequency)
@@ -42,9 +49,15 @@ int main( int argc, char *argv[])
     }
 
     int fd;
-    int dID = 0x60; // i2c Channel the device is on
-    if((fd=wiringPiI2CSetup(dID)) < 0) {
-        printf("error opening i2c channel \r\n");
+    //open i2c device
+    if ((fd = open(I2C_DEV, O_RDWR)) < 0) {
+        printf("error opening i2c dev %s \r\n", I2C_DEV);
+        return -1;
+    }
+
+    //set slave id
+    if (ioctl (fd, I2C_SLAVE, I2C_TEA5767_ID) < 0) {
+        printf("error set i2c slave id %02x \r\n", I2C_TEA5767_ID);
         return -1;
     }
 
